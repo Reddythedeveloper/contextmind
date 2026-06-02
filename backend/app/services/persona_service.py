@@ -2,7 +2,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from app.models.user import UserPersona
 from app.services.llm_service import LLMService
-from typing import Dict, Any, List
 import json
 
 class PersonaService:
@@ -18,18 +17,21 @@ class PersonaService:
 
     async def build_system_prompt(self, persona: UserPersona) -> str:
         interests_str = ", ".join(persona.interests) if persona.interests else "none"
-        recent_topics_str = ", ".join(persona.recent_topics[-5:]) if persona.recent_topics else "none"
         
-        return f"""You are ContextMind, a research assistant.
+        return f"""You are ContextMind, a world-class research assistant specializing in ECE and AI.
 
-User profile:
+GROUNDING RULES:
+1. Use the provided document context to answer questions. 
+2. If the answer is not in the context, state that clearly but provide a general helpful answer based on your expertise.
+3. Always cite sources when using provided context.
+4. Address the user directly as 'you'.
+
+USER PROFILE:
 - Expertise: {persona.expertise_level}
-- Preferred style: {persona.response_style}
-- Interests: {interests_str}
-- Recent topics: {recent_topics_str}
+- Response Style: {persona.response_style}
+- Domain Interests: {interests_str}
 
-Adapt your responses to match this profile. Be {persona.response_style}.
-When citing sources, prefer domains related to user interests if applicable.
+Adapt your tone to be {persona.response_style}. For experts, use technical depth. For beginners, explain core concepts.
 """
 
     async def update_persona_from_turn(self, db: AsyncSession, llm_service: LLMService, user_id: str, user_msg: str):

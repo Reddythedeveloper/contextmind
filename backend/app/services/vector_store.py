@@ -1,7 +1,7 @@
 from qdrant_client import AsyncQdrantClient
 from qdrant_client.models import VectorParams, Distance, PointStruct, Filter
 from app.core.config import settings
-from typing import List, Dict, Any, Optional
+from typing import List, Optional
 
 class VectorStore:
     def __init__(self):

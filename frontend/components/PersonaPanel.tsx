@@ -1,16 +1,43 @@
 'use client';
 
-import React from 'react';
-import { User, Brain, Sliders, Zap } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { User, Brain, Sliders, Zap, Check } from 'lucide-react';
+import { getPersona, updatePersona } from '../lib/api';
 
 export default function PersonaPanel() {
-  // Mock data - would come from an API in Phase 4/5
-  const persona = {
-    expertise: 'Intermediate',
-    style: 'Detailed',
-    interests: ['AI Architecture', 'SaaS', 'Fintech'],
-    recentTopics: ['RAG', 'Vector DBs', 'Python'],
+  const [persona, setPersona] = useState({
+    expertise_level: 'intermediate',
+    response_style: 'detailed',
+    interests: [] as string[],
+  });
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchPersona = async () => {
+    try {
+      const data = await getPersona();
+      setPersona(data);
+    } catch (err) {
+      console.error('Failed to fetch persona', err);
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchPersona();
+  }, []);
+
+  const handleUpdate = async (update: { expertise_level?: string; response_style?: string; interests?: string[] }) => {
+    try {
+      const updated = await updatePersona(update);
+      setPersona(updated);
+    } catch (err) {
+      console.error('Failed to update persona', err);
+    }
+  };
+
+  if (isLoading) return <div className="w-80 p-4">Loading...</div>;
 
   return (
     <div className="w-80 bg-white border-l h-full flex flex-col shadow-sm">
@@ -25,11 +52,18 @@ export default function PersonaPanel() {
             <User size={16} className="text-slate-400" />
             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Expertise Level</h3>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-slate-700">{persona.expertise}</span>
-            <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
-              <div className="h-full bg-blue-500 w-2/3" />
-            </div>
+          <div className="grid grid-cols-3 gap-2">
+            {['beginner', 'intermediate', 'expert'].map((level) => (
+              <button
+                key={level}
+                onClick={() => handleUpdate({ expertise_level: level })}
+                className={`px-2 py-1 rounded text-[10px] font-medium capitalize border transition-colors ${
+                  persona.expertise_level === level ? 'bg-blue-600 text-white border-blue-700' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                }`}
+              >
+                {level}
+              </button>
+            ))}
           </div>
         </section>
 
@@ -39,12 +73,16 @@ export default function PersonaPanel() {
             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Response Style</h3>
           </div>
           <div className="flex flex-wrap gap-2">
-            {['Concise', 'Balanced', 'Detailed'].map((s) => (
-              <span key={s} className={`px-2 py-1 rounded text-xs font-medium ${
-                persona.style === s ? 'bg-blue-100 text-blue-700 border border-blue-200' : 'bg-slate-50 text-slate-500 border'
-              }`}>
+            {['concise', 'balanced', 'detailed'].map((s) => (
+              <button
+                key={s}
+                onClick={() => handleUpdate({ response_style: s })}
+                className={`px-2 py-1 rounded text-xs font-medium capitalize border transition-colors ${
+                  persona.response_style === s ? 'bg-blue-100 text-blue-700 border-blue-200' : 'bg-slate-50 text-slate-500 border-slate-100 hover:bg-slate-100'
+                }`}
+              >
                 {s}
-              </span>
+              </button>
             ))}
           </div>
         </section>
@@ -52,14 +90,29 @@ export default function PersonaPanel() {
         <section>
           <div className="flex items-center gap-2 mb-2">
             <Zap size={16} className="text-slate-400" />
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Active Interests</h3>
+            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Interests</h3>
           </div>
           <div className="flex flex-wrap gap-2">
-            {persona.interests.map((interest) => (
-              <span key={interest} className="px-2 py-1 bg-slate-100 text-slate-700 rounded-full text-xs border">
-                {interest}
-              </span>
-            ))}
+            {['Finance', 'Tech', 'Medicine', 'AI', 'Law'].map((interest) => {
+              const isActive = persona.interests.includes(interest);
+              return (
+                <button
+                  key={interest}
+                  onClick={() => {
+                    const newInterests = isActive
+                      ? persona.interests.filter((i) => i !== interest)
+                      : [...persona.interests, interest];
+                    handleUpdate({ interests: newInterests });
+                  }}
+                  className={`px-2 py-1 rounded-full text-xs border transition-colors flex items-center gap-1 ${
+                    isActive ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                  }`}
+                >
+                  {interest}
+                  {isActive && <Check size={10} />}
+                </button>
+              );
+            })}
           </div>
         </section>
 

@@ -48,10 +48,10 @@ export default function ChatWindow({ sessionId }: { sessionId: string }) {
                 <div className="mt-2 pt-2 border-t border-slate-100">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Sources</p>
                   <div className="flex flex-wrap gap-2">
-                    {m.sources.map((s: any, j: number) => (
+                    {m.sources.map((s, j: number) => (
                       <div key={j} className="flex items-center gap-1 bg-slate-50 px-2 py-1 rounded border text-[10px] text-slate-600">
                         <FileText size={10} />
-                        <span>{s.source} (score: {s.score.toFixed(2)})</span>
+                        <span>{s.source} ({s.score.toFixed(2)})</span>
                       </div>
                     ))}
                   </div>

@@ -3,7 +3,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 export interface Message {
   role: 'user' | 'assistant';
   content: string;
-  sources?: any[];
+  sources?: { source: string; score: number }[];
 }
 
 export function useChat(sessionId: string) {
@@ -18,7 +18,9 @@ export function useChat(sessionId: string) {
 
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      if (data.type === 'token') {
+      if (data.type === 'history') {
+        setMessages((prev) => [...prev, { role: data.role, content: data.content }]);
+      } else if (data.type === 'token') {
         setIsStreaming(true);
         setMessages((prev) => {
           const lastMessage = prev[prev.length - 1];

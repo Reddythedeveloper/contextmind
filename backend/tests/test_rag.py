@@ -17,12 +17,13 @@ async def test_ingest_and_retrieve():
     doc_text = "FastAPI is a modern Python web framework for building APIs."
     user_id = "test-user"
     doc_id = "test-doc"
+    session_id = "test-session"
     
     # Clean up or use a unique user_id
-    num_chunks = await rag_service.ingest(doc_text, doc_id, user_id, {"filename": "test.txt"})
+    num_chunks = await rag_service.ingest(doc_text, doc_id, user_id, session_id, {"filename": "test.txt"})
     assert num_chunks > 0
     
-    results = await rag_service.retrieve("What is FastAPI?", user_id)
+    results = await rag_service.retrieve("What is FastAPI?", user_id, session_id)
     assert len(results) > 0
     assert "FastAPI" in results[0]["text"]
     assert results[0]["score"] > 0.5

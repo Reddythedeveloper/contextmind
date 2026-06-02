@@ -2,11 +2,19 @@ from groq import AsyncGroq
 from app.core.config import settings
 from typing import AsyncIterator, List, Dict, Any
 
+# Optional LangSmith Tracing
+try:
+    from langsmith import traceable
+except ImportError:
+    def traceable(*args, **kwargs):
+        return lambda f: f
+
 class LLMService:
     def __init__(self):
         self.client = AsyncGroq(api_key=settings.GROQ_API_KEY)
         self.model = "llama-3.3-70b-versatile"
 
+    @traceable(name="chat_stream")
     async def stream_chat(
         self,
         messages: List[Dict[str, Any]],

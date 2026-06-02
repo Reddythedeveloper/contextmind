@@ -1,5 +1,4 @@
 from pydantic_settings import BaseSettings
-from typing import Optional
 
 class Settings(BaseSettings):
     DATABASE_URL: str = "postgresql+asyncpg://contextmind:secret@localhost:5432/contextmind_db"
