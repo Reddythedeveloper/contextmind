@@ -1,10 +1,11 @@
 from fastapi import FastAPI
 from app.core.config import settings
-from app.api import documents
+from app.api import documents, chat
 
 app = FastAPI(title="ContextMind API")
 
 app.include_router(documents.router)
+app.include_router(chat.router)
 
 @app.get("/health")
 async def health_check():
