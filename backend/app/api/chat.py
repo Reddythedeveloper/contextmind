@@ -40,10 +40,14 @@ async def chat_ws(
             user_message = message_data["message"]
 
             # 1. Build persona-aware system prompt
-            system_prompt = await persona_service.build_system_prompt(user)
+            persona = await persona_service.get_or_create_persona(db, user["id"])
+            system_prompt = await persona_service.build_system_prompt(persona)
 
             # 2. Retrieve context from vector store (RAG)
             context_chunks = await rag_service.retrieve(user_message, user["id"])
+            
+            # Optional: Persona-weighted re-ranking could go here
+            
             context_text = "\n\n".join([c["text"] for c in context_chunks])
 
             # 3. Build augmented message
@@ -71,6 +75,9 @@ async def chat_ws(
                 "type": "sources",
                 "sources": context_chunks
             })
+
+            # 8. Update persona (background-ish)
+            await persona_service.update_persona_from_turn(db, llm_service, user["id"], user_message)
             
     except WebSocketDisconnect:
         pass
