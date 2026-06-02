@@ -1,7 +1,10 @@
 from fastapi import FastAPI
 from app.core.config import settings
+from app.api import documents
 
 app = FastAPI(title="ContextMind API")
+
+app.include_router(documents.router)
 
 @app.get("/health")
 async def health_check():
