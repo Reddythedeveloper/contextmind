@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+alembic/versions/*
+!alembic/versions/.gitkeep
+
+# Node
+node_modules/
+.next/
+out/
+build/
+dist/
+
+# IDEs
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
